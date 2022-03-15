@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  app_db:
+    image: postgres:12
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+  app_redis:
+    image: redis:5.0.0
+    command: "redis-server --appendonly yes"
+
+  app_celery:
+    build:
+      context: .
+      dockerfile: celery.dockerfile
+    depends_on:
+      - app_redis
+    env_file:
+      - .env
+
+  app:
+    build:
+      context: .
+      dockerfile: backend.dockerfile
+    volumes:
+      - .:/code:rw
+    ports:
+      - "3000:3000"
+      - "3035:3035"
+    depends_on:
+      - app_db
+      - app_redis
+    env_file:
+      - .env
+
+volumes:
+  app-db-data:
