@@ -30,8 +30,7 @@ services:
     volumes:
       - .:/code:rw
     ports:
-      - "3000:3000"
-      - "3035:3035"
+      - "80:80"
     depends_on:
       - app_db
       - app_redis
